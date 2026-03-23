@@ -1,0 +1,110 @@
+<script type="text/javascript">
+    RED.nodes.registerType("claude", {
+        category: "AI",
+        color: "#CC785C",
+        defaults: {
+            name:        { value: "" },
+            model:       { value: "claude-sonnet-4-6" },
+            maxTokens:   { value: 1024, validate: RED.validators.number() },
+            temperature: { value: "" },
+            topP:        { value: "" },
+            topK:        { value: "" }
+        },
+        credentials: {
+            apiKey: { type: "password" }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon: "font-awesome/fa-commenting",
+        label: function () {
+            return this.name || "claude";
+        },
+        paletteLabel: "claude",
+        oneditprepare: function () {
+            // No special prep needed
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="claude">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name (optional)">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-apiKey"><i class="fa fa-key"></i> API Key</label>
+        <input type="password" id="node-input-apiKey" placeholder="sk-ant-…">
+    </div>
+
+    <hr/>
+    <p style="color:#888;font-size:0.85em;margin-bottom:8px;">
+        Node properties are defaults. Override any of these at runtime by setting the
+        corresponding property on <code>msg</code> (e.g. <code>msg.model</code>,
+        <code>msg.temperature</code>, etc.).
+    </p>
+
+    <div class="form-row">
+        <label for="node-input-model"><i class="fa fa-cube"></i> Model</label>
+        <input type="text" id="node-input-model" placeholder="claude-sonnet-4-6">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-maxTokens"><i class="fa fa-hashtag"></i> Max Tokens</label>
+        <input type="number" id="node-input-maxTokens" placeholder="1024" min="1">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-temperature"><i class="fa fa-thermometer-half"></i> Temperature</label>
+        <input type="number" id="node-input-temperature" placeholder="leave blank for default" step="0.01" min="0" max="1">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-topP"><i class="fa fa-percent"></i> Top P</label>
+        <input type="number" id="node-input-topP" placeholder="leave blank for default" step="0.01" min="0" max="1">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-topK"><i class="fa fa-filter"></i> Top K</label>
+        <input type="number" id="node-input-topK" placeholder="leave blank for default" min="1">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="claude">
+    <p>Sends a query to the <strong>Anthropic Claude API</strong> and returns the response.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">string</span></dt>
+        <dd>The query text to send to Claude.</dd>
+        <dt class="optional">model <span class="property-type">string</span></dt>
+        <dd>Override the model (e.g. <code>claude-opus-4-6</code>).</dd>
+        <dt class="optional">maxTokens <span class="property-type">number</span></dt>
+        <dd>Override the maximum tokens to generate.</dd>
+        <dt class="optional">temperature <span class="property-type">number</span></dt>
+        <dd>Override the sampling temperature (0 – 1).</dd>
+        <dt class="optional">topP <span class="property-type">number</span></dt>
+        <dd>Override nucleus sampling top-p (0 – 1).</dd>
+        <dt class="optional">topK <span class="property-type">number</span></dt>
+        <dd>Override top-k sampling.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">string</span></dt>
+        <dd>The text response from Claude.</dd>
+        <dt>claudeRaw <span class="property-type">object</span></dt>
+        <dd>The full raw API response object (including usage, stop reason, etc.).</dd>
+        <dt class="optional">claudeError <span class="property-type">object</span></dt>
+        <dd>Set only on API errors — contains <code>status</code> and <code>message</code>.</dd>
+    </dl>
+
+    <h3>Details</h3>
+    <p>
+        Configure your Anthropic API key in the node properties. All sampling
+        parameters (Temperature, Top P, Top K) are optional — leave them blank
+        to use the model's defaults. Any parameter can also be overridden at
+        runtime by setting the corresponding property on the incoming
+        <code>msg</code> object.
+    </p>
+</script>

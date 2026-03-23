@@ -1,0 +1,26 @@
+{
+  "name": "node-red-contrib-claude",
+  "version": "1.0.0",
+  "description": "A Node-RED node to interact with the Anthropic Claude API",
+  "keywords": [
+    "node-red",
+    "claude",
+    "anthropic",
+    "ai",
+    "llm"
+  ],
+  "node-red": {
+    "version": ">=2.0.0",
+    "nodes": {
+      "claude": "claude.js"
+    }
+  },
+  "main": "claude.js",
+  "scripts": {
+    "test": "echo \"No tests yet\""
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "license": "MIT"
+}
