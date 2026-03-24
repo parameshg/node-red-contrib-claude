@@ -4,19 +4,21 @@ module.exports = function (RED) {
         const node = this;
 
         // Static config from node properties (used as defaults)
-        const defaultModel       = config.model       || "claude-sonnet-4-6";
-        const defaultMaxTokens   = parseInt(config.maxTokens) || 1024;
-        const defaultTemperature = config.temperature !== "" ? parseFloat(config.temperature) : undefined;
-        const defaultTopP        = config.topP        !== "" ? parseFloat(config.topP)        : undefined;
-        const defaultTopK        = config.topK        !== "" ? parseInt(config.topK)          : undefined;
+        const defaultModel        = config.model        || "claude-sonnet-4-6";
+        const defaultMaxTokens    = parseInt(config.maxTokens) || 1024;
+        const defaultSystemPrompt = config.systemPrompt || undefined;
+        const defaultTemperature  = config.temperature !== "" ? parseFloat(config.temperature) : undefined;
+        const defaultTopP         = config.topP        !== "" ? parseFloat(config.topP)        : undefined;
+        const defaultTopK         = config.topK        !== "" ? parseInt(config.topK)          : undefined;
 
         node.on("input", async function (msg) {
             // --- Resolve parameters: msg properties override node config ---
-            const model       = msg.model       || defaultModel;
-            const maxTokens   = msg.maxTokens   || defaultMaxTokens;
-            const temperature = msg.temperature !== undefined ? parseFloat(msg.temperature) : defaultTemperature;
-            const topP        = msg.topP        !== undefined ? parseFloat(msg.topP)        : defaultTopP;
-            const topK        = msg.topK        !== undefined ? parseInt(msg.topK)          : defaultTopK;
+            const model        = msg.model        || defaultModel;
+            const maxTokens    = msg.maxTokens    || defaultMaxTokens;
+            const systemPrompt = msg.systemPrompt !== undefined ? msg.systemPrompt : defaultSystemPrompt;
+            const temperature  = msg.temperature  !== undefined ? parseFloat(msg.temperature) : defaultTemperature;
+            const topP         = msg.topP         !== undefined ? parseFloat(msg.topP)        : defaultTopP;
+            const topK         = msg.topK         !== undefined ? parseInt(msg.topK)          : defaultTopK;
 
             // Query text comes from msg.payload
             const query = (typeof msg.payload === "string") ? msg.payload : JSON.stringify(msg.payload);
@@ -41,6 +43,7 @@ module.exports = function (RED) {
                 max_tokens: maxTokens,
                 messages: [{ role: "user", content: query }]
             };
+            if (systemPrompt)                                      body.system      = systemPrompt;
             if (temperature !== undefined && !isNaN(temperature)) body.temperature = temperature;
             if (topP        !== undefined && !isNaN(topP))        body.top_p       = topP;
             if (topK        !== undefined && !isNaN(topK))        body.top_k       = topK;

@@ -3,12 +3,13 @@
         category: "AI",
         color: "#CC785C",
         defaults: {
-            name:        { value: "" },
-            model:       { value: "claude-sonnet-4-6" },
-            maxTokens:   { value: 1024, validate: RED.validators.number() },
-            temperature: { value: "" },
-            topP:        { value: "" },
-            topK:        { value: "" }
+            name:         { value: "" },
+            model:        { value: "claude-sonnet-4-6" },
+            maxTokens:    { value: 1024, validate: RED.validators.number() },
+            systemPrompt: { value: "" },
+            temperature:  { value: "" },
+            topP:         { value: "" },
+            topK:         { value: "" }
         },
         credentials: {
             apiKey: { type: "password" }
@@ -55,6 +56,11 @@
     </div>
 
     <div class="form-row">
+        <label for="node-input-systemPrompt"><i class="fa fa-align-left"></i> System Prompt</label>
+        <textarea id="node-input-systemPrompt" placeholder="Optional system prompt…" style="width:70%;height:80px;resize:vertical;"></textarea>
+    </div>
+
+    <div class="form-row">
         <label for="node-input-temperature"><i class="fa fa-thermometer-half"></i> Temperature</label>
         <input type="number" id="node-input-temperature" placeholder="leave blank for default" step="0.01" min="0" max="1">
     </div>
@@ -79,6 +85,8 @@
         <dd>The query text to send to Claude.</dd>
         <dt class="optional">model <span class="property-type">string</span></dt>
         <dd>Override the model (e.g. <code>claude-opus-4-6</code>).</dd>
+        <dt class="optional">systemPrompt <span class="property-type">string</span></dt>
+        <dd>Override the system prompt for this message.</dd>
         <dt class="optional">maxTokens <span class="property-type">number</span></dt>
         <dd>Override the maximum tokens to generate.</dd>
         <dt class="optional">temperature <span class="property-type">number</span></dt>

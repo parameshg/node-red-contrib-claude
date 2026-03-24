@@ -1,0 +1,215 @@
+[
+  {
+    "id": "flow-basic",
+    "type": "tab",
+    "label": "1 - Basic Q&A",
+    "info": "Inject a question, send it to Claude, display the response in the debug panel.\n\nConfigure your Anthropic API key in the claude node before deploying."
+  },
+  {
+    "id": "basic-inject",
+    "type": "inject",
+    "z": "flow-basic",
+    "name": "Ask a question",
+    "props": [{ "p": "payload" }],
+    "payload": "What is Node-RED and what is it used for?",
+    "payloadType": "str",
+    "x": 160, "y": 120,
+    "wires": [["basic-claude"]]
+  },
+  {
+    "id": "basic-claude",
+    "type": "claude",
+    "z": "flow-basic",
+    "name": "",
+    "model": "claude-sonnet-4-6",
+    "maxTokens": 512,
+    "systemPrompt": "",
+    "temperature": "",
+    "topP": "",
+    "topK": "",
+    "x": 380, "y": 120,
+    "wires": [["basic-debug"]]
+  },
+  {
+    "id": "basic-debug",
+    "type": "debug",
+    "z": "flow-basic",
+    "name": "Response",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 580, "y": 120,
+    "wires": []
+  },
+
+  {
+    "id": "flow-system-prompt",
+    "type": "tab",
+    "label": "2 - System Prompt",
+    "info": "Demonstrates setting a system prompt in the node config so Claude always responds as a specific persona."
+  },
+  {
+    "id": "sp-inject",
+    "type": "inject",
+    "z": "flow-system-prompt",
+    "name": "User message",
+    "props": [{ "p": "payload" }],
+    "payload": "How do I reverse a list?",
+    "payloadType": "str",
+    "x": 160, "y": 120,
+    "wires": [["sp-claude"]]
+  },
+  {
+    "id": "sp-claude",
+    "type": "claude",
+    "z": "flow-system-prompt",
+    "name": "Python tutor",
+    "model": "claude-sonnet-4-6",
+    "maxTokens": 512,
+    "systemPrompt": "You are a Python programming tutor. Always answer with a short explanation followed by a Python code example. Be concise.",
+    "temperature": "",
+    "topP": "",
+    "topK": "",
+    "x": 380, "y": 120,
+    "wires": [["sp-debug"]]
+  },
+  {
+    "id": "sp-debug",
+    "type": "debug",
+    "z": "flow-system-prompt",
+    "name": "Response",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 580, "y": 120,
+    "wires": []
+  },
+
+  {
+    "id": "flow-runtime-override",
+    "type": "tab",
+    "label": "3 - Runtime Overrides",
+    "info": "Shows how to override the model and system prompt per-message using a function node, without changing the node configuration."
+  },
+  {
+    "id": "ro-inject",
+    "type": "inject",
+    "z": "flow-runtime-override",
+    "name": "Trigger",
+    "props": [{ "p": "payload" }],
+    "payload": "Summarise the benefits of edge computing in two sentences.",
+    "payloadType": "str",
+    "x": 160, "y": 120,
+    "wires": [["ro-function"]]
+  },
+  {
+    "id": "ro-function",
+    "type": "function",
+    "z": "flow-runtime-override",
+    "name": "Set overrides",
+    "func": "// Override model and system prompt for this message only.\n// Any msg.* property takes precedence over the node config.\nmsg.model = \"claude-haiku-4-5-20251001\";\nmsg.systemPrompt = \"Reply in plain text with no markdown formatting.\";\nmsg.maxTokens = 256;\nreturn msg;",
+    "outputs": 1,
+    "x": 360, "y": 120,
+    "wires": [["ro-claude"]]
+  },
+  {
+    "id": "ro-claude",
+    "type": "claude",
+    "z": "flow-runtime-override",
+    "name": "",
+    "model": "claude-sonnet-4-6",
+    "maxTokens": 1024,
+    "systemPrompt": "",
+    "temperature": "",
+    "topP": "",
+    "topK": "",
+    "x": 580, "y": 120,
+    "wires": [["ro-debug"]]
+  },
+  {
+    "id": "ro-debug",
+    "type": "debug",
+    "z": "flow-runtime-override",
+    "name": "Response",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 780, "y": 120,
+    "wires": []
+  },
+
+  {
+    "id": "flow-error-handling",
+    "type": "tab",
+    "label": "4 - Error Handling",
+    "info": "Shows how to branch on claudeError so failures are handled gracefully rather than silently dropped."
+  },
+  {
+    "id": "eh-inject",
+    "type": "inject",
+    "z": "flow-error-handling",
+    "name": "Ask Claude",
+    "props": [{ "p": "payload" }],
+    "payload": "What is the capital of France?",
+    "payloadType": "str",
+    "x": 160, "y": 120,
+    "wires": [["eh-claude"]]
+  },
+  {
+    "id": "eh-claude",
+    "type": "claude",
+    "z": "flow-error-handling",
+    "name": "",
+    "model": "claude-sonnet-4-6",
+    "maxTokens": 256,
+    "systemPrompt": "",
+    "temperature": "",
+    "topP": "",
+    "topK": "",
+    "x": 360, "y": 120,
+    "wires": [["eh-switch"]]
+  },
+  {
+    "id": "eh-switch",
+    "type": "switch",
+    "z": "flow-error-handling",
+    "name": "Success or error?",
+    "property": "claudeError",
+    "propertyType": "msg",
+    "rules": [
+      { "t": "null" },
+      { "t": "nnull" }
+    ],
+    "checkall": "false",
+    "outputs": 2,
+    "x": 560, "y": 120,
+    "wires": [["eh-debug-ok"], ["eh-debug-err"]]
+  },
+  {
+    "id": "eh-debug-ok",
+    "type": "debug",
+    "z": "flow-error-handling",
+    "name": "Success",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 780, "y": 80,
+    "wires": []
+  },
+  {
+    "id": "eh-debug-err",
+    "type": "debug",
+    "z": "flow-error-handling",
+    "name": "Error",
+    "active": true,
+    "tosidebar": true,
+    "complete": "claudeError",
+    "targetType": "msg",
+    "x": 780, "y": 160,
+    "wires": []
+  }
+]
