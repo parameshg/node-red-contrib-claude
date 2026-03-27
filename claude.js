@@ -11,6 +11,15 @@ module.exports = function (RED) {
         const defaultTopP         = config.topP        !== "" ? parseFloat(config.topP)        : undefined;
         const defaultTopK         = config.topK        !== "" ? parseInt(config.topK)          : undefined;
 
+        let defaultOutputSchema;
+        if (config.outputSchema) {
+            try {
+                defaultOutputSchema = JSON.parse(config.outputSchema);
+            } catch (e) {
+                node.error("Invalid JSON in Output Schema config: " + e.message);
+            }
+        }
+
         node.on("input", async function (msg) {
             // --- Resolve parameters: msg properties override node config ---
             const model        = msg.model        || defaultModel;
@@ -19,6 +28,23 @@ module.exports = function (RED) {
             const temperature  = msg.temperature  !== undefined ? parseFloat(msg.temperature) : defaultTemperature;
             const topP         = msg.topP         !== undefined ? parseFloat(msg.topP)        : defaultTopP;
             const topK         = msg.topK         !== undefined ? parseInt(msg.topK)          : defaultTopK;
+
+            let outputSchema;
+            if (msg.outputSchema !== undefined) {
+                if (typeof msg.outputSchema === "string") {
+                    try {
+                        outputSchema = JSON.parse(msg.outputSchema);
+                    } catch (e) {
+                        node.error("Invalid JSON in msg.outputSchema: " + e.message, msg);
+                        node.status({ fill: "red", shape: "dot", text: "invalid output schema" });
+                        return;
+                    }
+                } else {
+                    outputSchema = msg.outputSchema;
+                }
+            } else {
+                outputSchema = defaultOutputSchema;
+            }
 
             // Query text comes from msg.payload
             const query = (typeof msg.payload === "string") ? msg.payload : JSON.stringify(msg.payload);
@@ -47,6 +73,14 @@ module.exports = function (RED) {
             if (temperature !== undefined && !isNaN(temperature)) body.temperature = temperature;
             if (topP        !== undefined && !isNaN(topP))        body.top_p       = topP;
             if (topK        !== undefined && !isNaN(topK))        body.top_k       = topK;
+            if (outputSchema) {
+                body.tools = [{
+                    name: "structured_output",
+                    description: "Return the response using this structure.",
+                    input_schema: outputSchema
+                }];
+                body.tool_choice = { type: "tool", name: "structured_output" };
+            }
 
             node.status({ fill: "blue", shape: "dot", text: "Thinking…" });
 
@@ -94,9 +128,14 @@ module.exports = function (RED) {
                     return;
                 }
 
-                // Extract the text response
-                const textContent = response.body.content?.find(c => c.type === "text");
-                msg.payload   = textContent ? textContent.text : "";
+                // Extract the response — structured (tool_use) or plain text
+                if (outputSchema) {
+                    const toolUse = response.body.content?.find(c => c.type === "tool_use");
+                    msg.payload = toolUse ? toolUse.input : null;
+                } else {
+                    const textContent = response.body.content?.find(c => c.type === "text");
+                    msg.payload = textContent ? textContent.text : "";
+                }
                 msg.claudeRaw = response.body;   // full response on msg.claudeRaw for power users
 
                 node.status({ fill: "green", shape: "dot", text: "OK" });

@@ -1,6 +1,9 @@
 # node-red-contrib-claude
+<img alt="Static Badge" src="https://img.shields.io/badge/Developer-Claude-orange">
 
 A [Node-RED](https://nodered.org/) node for interacting with the [Anthropic Claude API](https://docs.anthropic.com/en/api/getting-started).
+
+> ### This software is built by AI and reviewed by human
 
 ## Requirements
 
@@ -34,6 +37,7 @@ Open the node's properties panel and enter your Anthropic API key. All other fie
 | Model       | `claude-sonnet-4-6` | Claude model ID                     |
 | Max Tokens  | `1024`              | Maximum tokens to generate          |
 | System Prompt | *(none)*          | System prompt sent with every message |
+| Output Schema | *(none)*          | JSON Schema for structured output — when set, `msg.payload` is an object |
 | Temperature | *(model default)*   | Sampling temperature (0–1)          |
 | Top P       | *(model default)*   | Nucleus sampling (0–1)              |
 | Top K       | *(model default)*   | Top-k sampling (integer ≥ 1)        |
@@ -47,8 +51,9 @@ Open the node's properties panel and enter your Anthropic API key. All other fie
 | `msg.payload`     | string | Yes      | The prompt / query text sent to Claude    |
 | `msg.model`        | string | No       | Override the model for this message          |
 | `msg.maxTokens`    | number | No       | Override max tokens for this message         |
-| `msg.systemPrompt` | string | No       | Override the system prompt for this message  |
-| `msg.temperature`  | number | No       | Override temperature for this message        |
+| `msg.systemPrompt`  | string         | No       | Override the system prompt for this message           |
+| `msg.outputSchema`  | string\|object | No       | Override the output schema for this message           |
+| `msg.temperature`   | number         | No       | Override temperature for this message                 |
 | `msg.topP`        | number | No       | Override top-p for this message           |
 | `msg.topK`        | number | No       | Override top-k for this message           |
 
@@ -58,7 +63,7 @@ Non-string payloads are automatically serialized to JSON before being sent.
 
 | Property        | Type   | Description                                        |
 |-----------------|--------|----------------------------------------------------|
-| `msg.payload`   | string | The text response from Claude                      |
+| `msg.payload`   | string \| object | The text response from Claude, or a parsed object when an output schema is set |
 | `msg.claudeRaw` | object | Full API response (usage stats, stop reason, etc.) |
 
 ### Output (API error)
@@ -91,6 +96,7 @@ Import `examples/flows.json` via **Menu → Import** in the Node-RED editor. It 
 | **2 - System Prompt** | System prompt set in the node config so Claude always responds as a Python tutor. |
 | **3 - Runtime Overrides** | A function node sets `msg.model`, `msg.systemPrompt`, and `msg.maxTokens` before calling the claude node, overriding the node config per-message. |
 | **4 - Error Handling** | A switch node branches on `msg.claudeError` (null = success, non-null = API error) so failures are handled explicitly. |
+| **5 - Structured Output** | A JSON Schema is set in the node config; `msg.payload` arrives as a parsed object with fields like `name`, `salary`, etc. |
 
 > After importing, open each claude node and enter your Anthropic API key before deploying.
 

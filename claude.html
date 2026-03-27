@@ -7,6 +7,7 @@
             model:        { value: "claude-sonnet-4-6" },
             maxTokens:    { value: 1024, validate: RED.validators.number() },
             systemPrompt: { value: "" },
+            outputSchema: { value: "" },
             temperature:  { value: "" },
             topP:         { value: "" },
             topK:         { value: "" }
@@ -61,6 +62,11 @@
     </div>
 
     <div class="form-row">
+        <label for="node-input-outputSchema"><i class="fa fa-code"></i> Output Schema</label>
+        <textarea id="node-input-outputSchema" placeholder='Optional JSON Schema, e.g. {"type":"object","properties":{"answer":{"type":"string"}}}' style="width:70%;height:100px;resize:vertical;font-family:monospace;font-size:0.85em;"></textarea>
+    </div>
+
+    <div class="form-row">
         <label for="node-input-temperature"><i class="fa fa-thermometer-half"></i> Temperature</label>
         <input type="number" id="node-input-temperature" placeholder="leave blank for default" step="0.01" min="0" max="1">
     </div>
@@ -87,6 +93,8 @@
         <dd>Override the model (e.g. <code>claude-opus-4-6</code>).</dd>
         <dt class="optional">systemPrompt <span class="property-type">string</span></dt>
         <dd>Override the system prompt for this message.</dd>
+        <dt class="optional">outputSchema <span class="property-type">string | object</span></dt>
+        <dd>JSON Schema for structured output. When set, <code>msg.payload</code> on output will be a parsed object instead of a string.</dd>
         <dt class="optional">maxTokens <span class="property-type">number</span></dt>
         <dd>Override the maximum tokens to generate.</dd>
         <dt class="optional">temperature <span class="property-type">number</span></dt>
@@ -99,8 +107,8 @@
 
     <h3>Outputs</h3>
     <dl class="message-properties">
-        <dt>payload <span class="property-type">string</span></dt>
-        <dd>The text response from Claude.</dd>
+        <dt>payload <span class="property-type">string | object</span></dt>
+        <dd>The text response from Claude, or a parsed object when an Output Schema is configured.</dd>
         <dt>claudeRaw <span class="property-type">object</span></dt>
         <dd>The full raw API response object (including usage, stop reason, etc.).</dd>
         <dt class="optional">claudeError <span class="property-type">object</span></dt>

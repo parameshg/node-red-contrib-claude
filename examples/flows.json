@@ -142,6 +142,51 @@
   },
 
   {
+    "id": "flow-structured-output",
+    "type": "tab",
+    "label": "5 - Structured Output",
+    "info": "Uses a JSON Schema in the node config to force Claude to return a structured object.\nmsg.payload will be a parsed JavaScript object, not a string."
+  },
+  {
+    "id": "so-inject",
+    "type": "inject",
+    "z": "flow-structured-output",
+    "name": "Ask for structured data",
+    "props": [{ "p": "payload" }],
+    "payload": "Extract the key details from this text: 'Alice Smith joined Acme Corp on 12 March 2024 as a Senior Engineer with a salary of $120,000.'",
+    "payloadType": "str",
+    "x": 180, "y": 120,
+    "wires": [["so-claude"]]
+  },
+  {
+    "id": "so-claude",
+    "type": "claude",
+    "z": "flow-structured-output",
+    "name": "Extract structured data",
+    "model": "claude-sonnet-4-6",
+    "maxTokens": 1024,
+    "systemPrompt": "",
+    "outputSchema": "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"company\":{\"type\":\"string\"},\"startDate\":{\"type\":\"string\"},\"jobTitle\":{\"type\":\"string\"},\"salary\":{\"type\":\"number\"}},\"required\":[\"name\",\"company\",\"startDate\",\"jobTitle\",\"salary\"]}",
+    "temperature": "",
+    "topP": "",
+    "topK": "",
+    "x": 420, "y": 120,
+    "wires": [["so-debug"]]
+  },
+  {
+    "id": "so-debug",
+    "type": "debug",
+    "z": "flow-structured-output",
+    "name": "Structured object",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 640, "y": 120,
+    "wires": []
+  },
+
+  {
     "id": "flow-error-handling",
     "type": "tab",
     "label": "4 - Error Handling",
